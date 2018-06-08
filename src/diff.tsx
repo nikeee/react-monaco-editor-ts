@@ -28,12 +28,12 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
   private _currentOriginal: string;
   private _preventTriggerChangeEvent: boolean = false;
 
-  private containerElement: HTMLElement | undefined;
+  private containerElement: React.RefObject<HTMLDivElement>;
   private editor: monaco.editor.IStandaloneDiffEditor | undefined;
 
   constructor(props) {
     super(props);
-    this.containerElement = undefined;
+    this.containerElement = React.createRef<HTMLDivElement>();
     this._currentValue = props.value;
     this._currentOriginal = props.original;
   }
@@ -115,7 +115,7 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
     if (this.containerElement) {
       // Before initializing monaco editor
       this.editorWillMount();
-      this.editor = monaco.editor.createDiffEditor(this.containerElement, options);
+      this.editor = monaco.editor.createDiffEditor(this.containerElement.current, options);
       if (theme) {
         monaco.editor.setTheme(theme);
       }
@@ -131,10 +131,6 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
     }
   }
 
-  assignRef = (component) => {
-    this.containerElement = component;
-  };
-
   render() {
     const { width, height } = this.props;
     const fixedWidth = width.toString().indexOf('%') !== -1 ? width : `${width}px`;
@@ -144,7 +140,7 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
       height: fixedHeight
     };
 
-    return <div ref={this.assignRef} style={style} className="react-monaco-editor-container" />;
+    return <div ref={this.containerElement} style={style} className="react-monaco-editor-container" />;
   }
 }
 
