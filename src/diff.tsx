@@ -84,7 +84,7 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
     }
   }
 
-  editorDidMount(editor) {
+  editorDidMount(editor: monaco.editor.IStandaloneDiffEditor) {
     this.props.editorDidMount(editor, monaco);
     editor.onDidUpdateDiff(() => {
       const value = editor.getModel().modified.getValue();
@@ -99,14 +99,12 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
     });
   }
 
-  updateModel(value, original) {
+  updateModel(modifiedValue: string, originalValue: string) {
     const { language } = this.props;
-    const originalModel = monaco.editor.createModel(original, language);
-    const modifiedModel = monaco.editor.createModel(value, language);
-    this.editor.setModel({
-      original: originalModel,
-      modified: modifiedModel
-    });
+    const original = monaco.editor.createModel(originalValue, language);
+    const modified = monaco.editor.createModel(modifiedValue, language);
+
+    this.editor.setModel({ original, modified });
   }
 
   initMonaco() {
