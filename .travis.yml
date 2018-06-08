@@ -1,7 +1,25 @@
 language: node_js
-node_js: "8"
-script:
-  - yarn lint
-  - yarn test
-  - yarn build
-cache: yarn
+node_js:
+  - latest
+  - node
+  - 8
+  - 9
+  - 10
+
+cache: npm
+
+before_install: npm i -g npm@latest
+install: npm ci
+
+deploy:
+  provider: npm
+  skip-cleanup: true
+  email: "nikeee@outlook.com"
+  api_key: $NPM_TOKEN
+  on:
+    branch: master
+    tags: true
+    node: node
+
+git:
+depth: 1
