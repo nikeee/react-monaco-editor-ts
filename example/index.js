@@ -2,7 +2,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 // eslint-disable-next-line import/no-unresolved, import/extensions
-import MonacoEditor from 'react-monaco-editor';
+import { MonacoEditor } from 'react-monaco-editor-ts';
 /* eslint-enable import/no-extraneous-dependencies */
 
 // Using with webpack
