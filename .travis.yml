@@ -9,7 +9,9 @@ node_js:
 cache: npm
 
 before_install: npm i -g npm@latest
-install: npm ci
+install:
+  - npm ci
+  - npm i monaco-editor react
 
 deploy:
   provider: npm
