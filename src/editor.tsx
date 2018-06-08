@@ -1,6 +1,6 @@
-import * as monaco from 'monaco-editor';
-import PropTypes from 'prop-types';
-import * as React from 'react';
+import * as monaco from "monaco-editor";
+import PropTypes from "prop-types";
+import * as React from "react";
 
 function noop() {}
 
@@ -84,7 +84,7 @@ class MonacoEditor extends React.Component {
   }
 
   destroyMonaco() {
-    if (typeof this.editor !== 'undefined') {
+    if (typeof this.editor !== "undefined") {
       this.editor.dispose();
     }
   }
@@ -95,8 +95,8 @@ class MonacoEditor extends React.Component {
 
   render() {
     const { width, height } = this.props;
-    const fixedWidth = width.toString().indexOf('%') !== -1 ? width : `${width}px`;
-    const fixedHeight = height.toString().indexOf('%') !== -1 ? height : `${height}px`;
+    const fixedWidth = width.toString().indexOf("%") !== -1 ? width : `${width}px`;
+    const fixedHeight = height.toString().indexOf("%") !== -1 ? height : `${height}px`;
     const style = {
       width: fixedWidth,
       height: fixedHeight
@@ -120,11 +120,11 @@ MonacoEditor.propTypes = {
 };
 
 MonacoEditor.defaultProps = {
-  width: '100%',
-  height: '100%',
+  width: "100%",
+  height: "100%",
   value: null,
-  defaultValue: '',
-  language: 'javascript',
+  defaultValue: "",
+  language: "javascript",
   theme: null,
   options: {},
   editorDidMount: noop,
