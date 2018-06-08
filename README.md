@@ -1,26 +1,18 @@
-# react-monaco-editor
+# react-monaco-editor-ts
 
 > [Monaco Editor](https://github.com/Microsoft/monaco-editor) for React.
 
-[![NPM version][npm-image]][npm-url]
-[![Downloads][downloads-image]][npm-url]
-[![Build Status](https://travis-ci.org/superRaytin/react-monaco-editor.svg?branch=master)](https://travis-ci.org/superRaytin/react-monaco-editor)
-
-[![react-monaco-editor](https://nodei.co/npm/react-monaco-editor.png)](https://npmjs.org/package/react-monaco-editor)
-
-[npm-url]: https://npmjs.org/package/react-monaco-editor
-[downloads-image]: http://img.shields.io/npm/dm/react-monaco-editor.svg
-[npm-image]: http://img.shields.io/npm/v/react-monaco-editor.svg
+This is a hard-fork of [react-monaco-editor](https://travis-ci.org/superRaytin/react-monaco-editor).
 
 ## Examples
 
 To build the examples locally, run:
 
 ```bash
-yarn
+npm
 cd example
-yarn
-yarn start
+npm
+npm start
 ```
 
 Then open `http://localhost:8886` in a browser.
@@ -28,7 +20,7 @@ Then open `http://localhost:8886` in a browser.
 ## Installation
 
 ```bash
-yarn add react-monaco-editor
+npm i -S react-monaco-editor-ts
 ```
 
 ## Using with Webpack

@@ -1,5 +1,5 @@
 {
-  "name": "react-monaco-editor",
+  "name": "react-monaco-editor-ts",
   "version": "0.17.2",
   "description": "Monaco Editor for React",
   "main": "lib/index.js",
@@ -31,7 +31,8 @@
   "authors": [
     "Daniele Esposti <daniele.espsoti@gmail.com>",
     "Dominik Moritz <domoritz@cs.washington.edu>",
-    "Leon Shi <superRaytin@gmail.com>"
+    "Leon Shi <superRaytin@gmail.com>",
+    "Niklas Mollenhauer <nikeee@outlook.com>"
   ],
   "license": "MIT",
   "bugs": {
