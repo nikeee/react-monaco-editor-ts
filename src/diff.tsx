@@ -1,6 +1,5 @@
 import * as monaco from 'monaco-editor';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
 interface Props {
 	width: number | string;
@@ -34,22 +33,22 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
 	constructor(props: Props) {
 		super(props);
 		this.containerElement = React.createRef<HTMLDivElement>();
-		this._currentValue = props.value;
-		this._currentOriginal = props.original;
+		this._currentValue = props.value || "";
+		this._currentOriginal = props.original || "";
 	}
 
 	componentDidMount() {
 		this.initMonaco();
 	}
 
-	componentDidUpdate(prevProps) {
+	componentDidUpdate(prevProps: Props) {
 		if (
 			this.props.value !== this._currentValue ||
 			this.props.original !== this._currentOriginal
 		) {
 			// Always refer to the latest value
-			this._currentValue = this.props.value;
-			this._currentOriginal = this.props.original;
+			this._currentValue = this.props.value || "";
+			this._currentOriginal = this.props.original || "";
 			// Consider the situation of rendering 1+ times before the editor mounted
 			if (this.editor) {
 				this._preventTriggerChangeEvent = true;
@@ -85,18 +84,23 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
 	}
 
 	editorDidMount(editor: monaco.editor.IStandaloneDiffEditor) {
-		this.props.editorDidMount(editor, monaco);
-		editor.onDidUpdateDiff(() => {
-			const value = editor.getModel().modified.getValue();
+		const { editorDidMount, onChange } = this.props;
 
-			// Always refer to the latest value
-			this._currentValue = value;
+		if (editorDidMount) {
 
-			// Only invoking when user input changed
-			if (!this._preventTriggerChangeEvent) {
-				this.props.onChange(value);
-			}
-		});
+			editorDidMount(editor, monaco);
+			editor.onDidUpdateDiff(() => {
+				const value = editor.getModel().modified.getValue();
+
+				// Always refer to the latest value
+				this._currentValue = value;
+
+				// Only invoking when user input changed
+				if (!!onChange && !this._preventTriggerChangeEvent) {
+					onChange(value);
+				}
+			});
+		}
 	}
 
 	updateModel(modifiedValue: string, originalValue: string) {
@@ -108,7 +112,7 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
 	}
 
 	initMonaco() {
-		const value = this.props.value !== null ? this.props.value : this.props.defaultValue;
+		const value = (!!this.props.value ? this.props.value : this.props.defaultValue);
 		const { original, theme, options } = this.props;
 		if (this.containerElement) {
 			// Before initializing monaco editor
@@ -118,7 +122,10 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
 				monaco.editor.setTheme(theme);
 			}
 			// After initializing monaco editor
-			this.updateModel(value, original);
+			this.updateModel(
+				value || "",
+				original || "",
+			);
 			this.editorDidMount(this.editor);
 		}
 	}
@@ -142,6 +149,20 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
 	}
 }
 
+
+/*
+interface OptionalProps {
+	width: Props["width"] | undefined;
+	height: Props["height"] | undefined;
+
+	value: Props["value"] | undefined;
+	defaultValue: Props["value"] | undefined;
+
+	language: Props["value"] | undefined;
+}
+*/
+
+/*
 MonacoDiffEditor.propTypes = {
 	width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 	height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -169,3 +190,4 @@ MonacoDiffEditor.defaultProps = {
 	editorWillMount: noop,
 	onChange: noop
 };
+*/
