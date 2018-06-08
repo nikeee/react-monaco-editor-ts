@@ -2,14 +2,40 @@ import * as monaco from 'monaco-editor';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function noop() {}
+interface Props {
+  width?: number | string;
+  height?: number | string;
 
-class MonacoDiffEditor extends React.Component {
+  original?: string;
+  value?: string;
+  defaultValue?: string;
+  language: string;
+
+  theme?: string; // TODO narrow type?
+
+  options?: monaco.editor.IEditorOverrideServices;
+
+  editorDidMount?(editor: monaco.editor.IStandaloneDiffEditor, context: typeof monaco): void;
+  editorWillMount?(context: typeof monaco): void;
+  onChange?(value: string): void;
+}
+interface State {
+
+}
+
+export class MonacoDiffEditor extends React.Component<Props, State> {
+  private _currentValue: string;
+  private _currentOriginal: string;
+  private _preventTriggerChangeEvent: boolean = false;
+
+  private containerElement: HTMLElement | undefined;
+  private editor: monaco.editor.IStandaloneDiffEditor | undefined;
+
   constructor(props) {
     super(props);
     this.containerElement = undefined;
-    this.__current_value = props.value;
-    this.__current_original = props.original;
+    this._currentValue = props.value;
+    this._currentOriginal = props.original;
   }
 
   componentDidMount() {
@@ -18,21 +44,23 @@ class MonacoDiffEditor extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (
-      this.props.value !== this.__current_value ||
-      this.props.original !== this.__current_original
+      this.props.value !== this._currentValue ||
+      this.props.original !== this._currentOriginal
     ) {
       // Always refer to the latest value
-      this.__current_value = this.props.value;
-      this.__current_original = this.props.original;
+      this._currentValue = this.props.value;
+      this._currentOriginal = this.props.original;
       // Consider the situation of rendering 1+ times before the editor mounted
       if (this.editor) {
-        this.__prevent_trigger_change_event = true;
-        this.updateModel(this.__current_value, this.__current_original);
-        this.__prevent_trigger_change_event = false;
+        this._preventTriggerChangeEvent = true;
+        this.updateModel(this._currentValue, this._currentOriginal);
+        this._preventTriggerChangeEvent = false;
       }
     }
     if (prevProps.language !== this.props.language) {
-      monaco.editor.setModelLanguage(this.editor.getModel(), this.props.language);
+      const { original, modified } = this.editor.getModel();
+      monaco.editor.setModelLanguage(original, this.props.language);
+      monaco.editor.setModelLanguage(modified, this.props.language);
     }
     if (prevProps.theme !== this.props.theme) {
       monaco.editor.setTheme(this.props.theme);
@@ -51,7 +79,9 @@ class MonacoDiffEditor extends React.Component {
 
   editorWillMount() {
     const { editorWillMount } = this.props;
-    editorWillMount(monaco);
+    if (editorWillMount) {
+      editorWillMount(monaco);
+    }
   }
 
   editorDidMount(editor) {
@@ -60,10 +90,10 @@ class MonacoDiffEditor extends React.Component {
       const value = editor.getModel().modified.getValue();
 
       // Always refer to the latest value
-      this.__current_value = value;
+      this._currentValue = value;
 
       // Only invoking when user input changed
-      if (!this.__prevent_trigger_change_event) {
+      if (!this._preventTriggerChangeEvent) {
         this.props.onChange(value);
       }
     });
@@ -84,7 +114,7 @@ class MonacoDiffEditor extends React.Component {
     const { original, theme, options } = this.props;
     if (this.containerElement) {
       // Before initializing monaco editor
-      this.editorWillMount(monaco);
+      this.editorWillMount();
       this.editor = monaco.editor.createDiffEditor(this.containerElement, options);
       if (theme) {
         monaco.editor.setTheme(theme);
@@ -96,7 +126,7 @@ class MonacoDiffEditor extends React.Component {
   }
 
   destroyMonaco() {
-    if (typeof this.editor !== 'undefined') {
+    if (this.editor !== undefined) {
       this.editor.dispose();
     }
   }
@@ -145,5 +175,3 @@ MonacoDiffEditor.defaultProps = {
   editorWillMount: noop,
   onChange: noop
 };
-
-export default MonacoDiffEditor;
