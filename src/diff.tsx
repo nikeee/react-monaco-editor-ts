@@ -1,16 +1,14 @@
-import * as monaco from 'monaco-editor';
-import * as React from 'react';
+import * as monaco from "monaco-editor";
+import * as React from "react";
 
-interface Props {
+interface PropsBase {
 	width: number | string;
 	height: number | string;
 
 	original?: string;
-	value?: string;
-	defaultValue?: string;
 	language: string;
 
-	theme?: string; // TODO narrow type?
+	theme: string;
 
 	options?: monaco.editor.IEditorOverrideServices;
 
@@ -18,11 +16,17 @@ interface Props {
 	editorWillMount?(context: typeof monaco): void;
 	onChange?(value: string): void;
 }
-interface State {
-
+interface PropsUncontrolled extends PropsBase {
+	value: undefined;
+	defaultValue: string;
 }
+interface PropsControlled extends PropsBase {
+	defaultValue: undefined;
+	value: string;
+}
+type Props = PropsControlled | PropsUncontrolled;
 
-export class MonacoDiffEditor extends React.Component<Props, State> {
+export class MonacoDiffEditor extends React.Component<Props> {
 	private _currentValue: string;
 	private _currentOriginal: string;
 	private _preventTriggerChangeEvent: boolean = false;
@@ -30,8 +34,22 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
 	private containerElement: React.RefObject<HTMLDivElement>;
 	private editor: monaco.editor.IStandaloneDiffEditor | undefined;
 
-	constructor(props: Props) {
-		super(props);
+	static defaultProps = {
+		width: "100%",
+		height: "100%",
+		original: undefined,
+		value: undefined,
+		defaultValue: "",
+		language: "javascript",
+		theme: "vs",
+		options: {},
+		editorDidMount: undefined,
+		editorWillMount: undefined,
+		onChange: undefined
+	};
+
+	constructor(props: Partial<Props>) {
+		super(props as Props);
 		this.containerElement = React.createRef<HTMLDivElement>();
 		this._currentValue = props.value || "";
 		this._currentOriginal = props.original || "";
@@ -131,63 +149,22 @@ export class MonacoDiffEditor extends React.Component<Props, State> {
 	}
 
 	destroyMonaco() {
-		if (this.editor !== undefined) {
-			this.editor.dispose();
+		const e = this.editor; // defensive reference copy to prevent races
+		if (e !== undefined) {
+			e.dispose();
 		}
 	}
-
 	render() {
-		const { width, height } = this.props;
-		const fixedWidth = width.toString().indexOf('%') !== -1 ? width : `${width}px`;
-		const fixedHeight = height.toString().indexOf('%') !== -1 ? height : `${height}px`;
-		const style = {
-			width: fixedWidth,
-			height: fixedHeight
-		};
+		const style = this.getSize();
 
 		return <div ref={this.containerElement} style={style} className="react-monaco-editor-container" />;
 	}
+
+	private getSize() {
+		const { width, height } = this.props;
+		return {
+			height: typeof height !== "number" && height.indexOf("%") ? height : `${height}px`,
+			width: typeof width !== "number" && width.indexOf("%") ? width : `${width}px`,
+		};
+	}
 }
-
-
-/*
-interface OptionalProps {
-	width: Props["width"] | undefined;
-	height: Props["height"] | undefined;
-
-	value: Props["value"] | undefined;
-	defaultValue: Props["value"] | undefined;
-
-	language: Props["value"] | undefined;
-}
-*/
-
-/*
-MonacoDiffEditor.propTypes = {
-	width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-	height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-	original: PropTypes.string,
-	value: PropTypes.string,
-	defaultValue: PropTypes.string,
-	language: PropTypes.string,
-	theme: PropTypes.string,
-	options: PropTypes.object,
-	editorDidMount: PropTypes.func,
-	editorWillMount: PropTypes.func,
-	onChange: PropTypes.func
-};
-
-MonacoDiffEditor.defaultProps = {
-	width: '100%',
-	height: '100%',
-	original: null,
-	value: null,
-	defaultValue: '',
-	language: 'javascript',
-	theme: null,
-	options: {},
-	editorDidMount: noop,
-	editorWillMount: noop,
-	onChange: noop
-};
-*/
