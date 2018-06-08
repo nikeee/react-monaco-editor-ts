@@ -1,19 +1,13 @@
 import * as monaco from "monaco-editor";
 import * as React from "react";
+import { getSize } from "./common";
+import { EditorPropsBase } from "./types";
 
-interface PropsBase {
-	width: number | string;
-	height: number | string;
-
+interface PropsBase extends EditorPropsBase {
 	original?: string;
 	language: string;
 
-	theme: string;
-
-	options?: monaco.editor.IEditorOverrideServices;
-
 	editorDidMount?(editor: monaco.editor.IStandaloneDiffEditor, context: typeof monaco): void;
-	editorWillMount?(context: typeof monaco): void;
 	onChange?(value: string): void;
 }
 interface PropsUncontrolled extends PropsBase {
@@ -27,13 +21,6 @@ interface PropsControlled extends PropsBase {
 type Props = PropsControlled | PropsUncontrolled;
 
 export class MonacoDiffEditor extends React.Component<Props> {
-	private _currentValue: string;
-	private _currentOriginal: string;
-	private _preventTriggerChangeEvent: boolean = false;
-
-	private containerElement: React.RefObject<HTMLDivElement>;
-	private editor: monaco.editor.IStandaloneDiffEditor | undefined;
-
 	static defaultProps = {
 		width: "100%",
 		height: "100%",
@@ -47,6 +34,13 @@ export class MonacoDiffEditor extends React.Component<Props> {
 		editorWillMount: undefined,
 		onChange: undefined
 	};
+
+	private _currentValue: string;
+	private _currentOriginal: string;
+	private _preventTriggerChangeEvent: boolean = false;
+
+	private containerElement: React.RefObject<HTMLDivElement>;
+	private editor: monaco.editor.IStandaloneDiffEditor | undefined;
 
 	constructor(props: Partial<Props>) {
 		super(props as Props);
@@ -102,23 +96,23 @@ export class MonacoDiffEditor extends React.Component<Props> {
 	}
 
 	editorDidMount(editor: monaco.editor.IStandaloneDiffEditor) {
-		const { editorDidMount, onChange } = this.props;
-
+		const { editorDidMount } = this.props;
 		if (editorDidMount) {
-
 			editorDidMount(editor, monaco);
-			editor.onDidUpdateDiff(() => {
-				const value = editor.getModel().modified.getValue();
-
-				// Always refer to the latest value
-				this._currentValue = value;
-
-				// Only invoking when user input changed
-				if (!!onChange && !this._preventTriggerChangeEvent) {
-					onChange(value);
-				}
-			});
 		}
+
+		editor.onDidUpdateDiff(() => {
+			const value = editor.getModel().modified.getValue();
+
+			// Always refer to the latest value
+			this._currentValue = value;
+
+			const onChange = this.props.onChange;
+			// Only invoking when user input changed
+			if (onChange && !this._preventTriggerChangeEvent) {
+				onChange(value);
+			}
+		});
 	}
 
 	updateModel(modifiedValue: string, originalValue: string) {
@@ -136,9 +130,11 @@ export class MonacoDiffEditor extends React.Component<Props> {
 			// Before initializing monaco editor
 			this.editorWillMount();
 			this.editor = monaco.editor.createDiffEditor(this.containerElement.current, options);
+
 			if (theme) {
 				monaco.editor.setTheme(theme);
 			}
+
 			// After initializing monaco editor
 			this.updateModel(
 				value || "",
@@ -155,16 +151,8 @@ export class MonacoDiffEditor extends React.Component<Props> {
 		}
 	}
 	render() {
-		const style = this.getSize();
+		const style = getSize(this.props);
 
 		return <div ref={this.containerElement} style={style} className="react-monaco-editor-container" />;
-	}
-
-	private getSize() {
-		const { width, height } = this.props;
-		return {
-			height: typeof height !== "number" && height.indexOf("%") ? height : `${height}px`,
-			width: typeof width !== "number" && width.indexOf("%") ? width : `${width}px`,
-		};
 	}
 }
