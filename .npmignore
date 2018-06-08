@@ -1,8 +1,7 @@
-/examples/
-/example/
-.babelrc
-.eslintrc
-.eslintignore
+/example
+/src
+/test
+.editorconfig
 .gitignore
 .npmignore
 .travis.yml
