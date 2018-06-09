@@ -23,4 +23,4 @@ deploy:
     node: node
 
 git:
-depth: 1
+  depth: 1
