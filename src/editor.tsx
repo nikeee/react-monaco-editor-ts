@@ -7,7 +7,7 @@ interface PropsBase extends EditorPropsBase {
 	original?: string;
 	language: string;
 
-	editorDidMount?(editor: monaco.editor.IStandaloneDiffEditor, context: typeof monaco): void;
+	editorDidMount?(editor: monaco.editor.IStandaloneCodeEditor, context: typeof monaco): void;
 	onChange?(value: string, event: monaco.editor.IModelContentChangedEvent): void;
 }
 interface PropsUncontrolled extends PropsBase {
@@ -38,7 +38,7 @@ export class MonacoEditor extends React.Component<Props> {
 	private _preventTriggerChangeEvent: boolean = false;
 
 	private containerElement: React.RefObject<HTMLDivElement>;
-	private editor: monaco.editor.IStandaloneDiffEditor | undefined;
+	private editor: monaco.editor.IStandaloneCodeEditor | undefined;
 
 	constructor(props: Partial<Props>) {
 		super(props as Props);
@@ -61,17 +61,18 @@ export class MonacoEditor extends React.Component<Props> {
 				this._preventTriggerChangeEvent = false;
 			}
 		}
-		if (prevProps.language !== this.props.language) {
-			monaco.editor.setModelLanguage(this.editor.getModel(), this.props.language);
+		const e = this.editor;
+		if (e && prevProps.language !== this.props.language) {
+			monaco.editor.setModelLanguage(e.getModel(), this.props.language);
 		}
 		if (prevProps.theme !== this.props.theme) {
 			monaco.editor.setTheme(this.props.theme);
 		}
 		if (
-			this.editor &&
+			e &&
 			(this.props.width !== prevProps.width || this.props.height !== prevProps.height)
 		) {
-			this.editor.layout();
+			e.layout();
 		}
 	}
 
@@ -109,10 +110,11 @@ export class MonacoEditor extends React.Component<Props> {
 	initMonaco() {
 		const value = this.props.value !== null ? this.props.value : this.props.defaultValue;
 		const { language, theme, options } = this.props;
-		if (this.containerElement) {
+		const container = this.containerElement.current;
+		if (container) {
 			// Before initializing monaco editor
 			this.editorWillMount();
-			this.editor = monaco.editor.create(this.containerElement, {
+			this.editor = monaco.editor.create(container, {
 				value,
 				language,
 				...options,
