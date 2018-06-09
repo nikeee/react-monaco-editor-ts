@@ -1,6 +1,6 @@
 {
   "name": "react-monaco-editor-ts",
-  "version": "0.17.2",
+  "version": "0.20.0",
   "description": "Monaco Editor for React",
   "main": "lib/index.js",
   "jsnext:main": "lib/index.js",
