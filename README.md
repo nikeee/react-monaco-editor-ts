@@ -2,7 +2,7 @@
 
 > [Monaco Editor](https://github.com/Microsoft/monaco-editor) for React.
 
-This is a hard-fork of [react-monaco-editor](https://travis-ci.org/superRaytin/react-monaco-editor).
+This was a hard-fork of [react-monaco-editor](https://github.com/react-monaco-editor/react-monaco-editor). It existed because the original project did not support typescript (that well). This has changed and this project is now obsolete and therefore archived.
 
 ## Examples
 
